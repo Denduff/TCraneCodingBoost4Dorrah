@@ -58,7 +58,7 @@ namespace TransponderReceiverUser
         {
             if (checkX(plane) && checkY(plane) && checkZ(plane) )
             {
-                if(PlanesInOurList(plane))
+                if(!PlanesInOurList(plane))
                 isInList.Add(plane);
             }
         }
