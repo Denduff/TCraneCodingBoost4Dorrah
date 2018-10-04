@@ -2,6 +2,6 @@
 {
     public interface IOurAirspace
     {
-        bool isAirplaneInOurAirspace(Track track);
+        bool isAirplaneInOurAirspace(Plane plane);
     }
 }

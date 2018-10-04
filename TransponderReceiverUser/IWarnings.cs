@@ -4,6 +4,6 @@ namespace TransponderReceiverUser
 {
     public interface IWarnings
     {
-        List<Track> isInList { get; set; }
+        List<Plane> planeList { get; set; }
     }
 }

@@ -11,102 +11,48 @@ namespace TransponderReceiverUser
 {
     public class Warnings : IWarnings
     {
-        public List<Track> isInList { get; set; }
+        public List<Plane> planeList { get; set; }
+        public List<Tuple<Plane, Plane>> planesInDanger { get; set; }
 
         public Warnings()
         {
-            isInList = new List<Track>();
+            planeList = new List<Plane>();
+            planesInDanger = new List<Tuple<Plane, Plane>>();
         }
 
-        public bool checkY(Track plane)
+        public bool insideAirspace(TrackData data)
         {
-            if (10000 < plane.YCoordinate && plane.YCoordinate < 90000)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return data.YCoordinate >= 10000
+                   && data.YCoordinate < 90000
+                   && data.XCoordinate >= 10000
+                   && data.XCoordinate < 90000
+                   && data.Altitude >= 500
+                   && data.Altitude < 20000;
         }
 
-        public bool checkZ(Track plane)
+        public void ProcessTrackData(TrackData trackData)
         {
-            if (500 < plane.Altitude && plane.Altitude < 20000)
+            if (planeList.Exists(p => p.Data.Tag == trackData.Tag))
             {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public bool checkX(Track plane)
-        {
-            if (10000 < plane.XCoordinate && plane.XCoordinate < 90000)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public void addPlane(Track plane)
-        {
-            if (checkX(plane) && checkY(plane) && checkZ(plane) )
-            {
-                if(!PlanesInOurList(plane))
-                isInList.Add(plane);
-            }
-        }
-
-        public void removePlaneIfOutOfAirspace(Track plane)
-        {
-
-        }
-
-        // sort planes only in airspace.
-        public bool PlanesInOurList(Track plane)
-        {
-            bool exists = false;
-            lock (isInList)
-            {
-                for (int i = 0; i < isInList.Count; i++)
+                // update track data.
+                if (insideAirspace(trackData))
                 {
-                    if (isInList[i].Tag == plane.Tag)
-                    {
-                        exists = true;
-                    }
-                    else
-                    {
-                        exists = false;
-                    }
+                    planeList.Find(p => p.Data.Tag == trackData.Tag).Data.Update(trackData);
                 }
-
-                return exists;
-
-            }
-        }
-
-        public bool PlanesAreTooDamnClose(Track data)
-        {
-            lock (isInList)
-            {
-                foreach (var item in isInList.ToList().Where(item => item.Tag != data.Tag))
+                else
                 {
-                        if (Math.Abs((data.XCoordinate - item.XCoordinate)) < 100000 &&
-                            Math.Abs((data.YCoordinate - item.YCoordinate)) < 100000 &&
-                            Math.Abs((data.Altitude - item.Altitude)) < 200000)
-                        {
-                            Console.WriteLine("WARNING!! {0} and {1} are TOO DAMN CLOSE!!", data.Tag, item.Tag);
-                        }
+                    planeList.RemoveAll(p => p.Data.Tag == trackData.Tag);
                 }
             }
+            else if (insideAirspace(trackData))
+            {
+                planeList.Add(new Plane(trackData));
+            }
+        }
 
-            return true;
+        public void PlanesAreTooDamnClose(Plane plane)
+        {
+            planesInDanger = planeList.Where(item => item.isToCloseTo(plane) && item.Data.Tag != plane.Data.Tag).Select(item => new Tuple<Plane, Plane>(item, plane)).ToList();
         }
     }
   
