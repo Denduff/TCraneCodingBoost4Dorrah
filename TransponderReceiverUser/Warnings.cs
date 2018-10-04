@@ -15,11 +15,12 @@ namespace TransponderReceiverUser
 
         public Warnings()
         {
+            isInList = new List<Track>();
         }
 
         public bool checkY(Track plane)
         {
-            if (10000 < plane.YCoordinate && plane.YCoordinate > 90000)
+            if (10000 < plane.YCoordinate && plane.YCoordinate < 90000)
             {
                 return true;
             }
@@ -31,7 +32,7 @@ namespace TransponderReceiverUser
 
         public bool checkZ(Track plane)
         {
-            if (500 < plane.Altitude && plane.Altitude > 20000)
+            if (500 < plane.Altitude && plane.Altitude < 20000)
             {
                 return true;
             }
@@ -43,7 +44,7 @@ namespace TransponderReceiverUser
 
         public bool checkX(Track plane)
         {
-            if (10000 < plane.XCoordinate && plane.XCoordinate > 90000)
+            if (10000 < plane.XCoordinate && plane.XCoordinate < 90000)
             {
                 return true;
             }
